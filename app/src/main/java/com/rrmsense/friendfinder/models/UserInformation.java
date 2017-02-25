@@ -7,7 +7,7 @@ import java.util.ArrayList;
  * Created by Talha on 2/23/2017.
  */
 
-public class user {
+public class UserInformation {
 
     private String id;
     private String email;
@@ -15,17 +15,20 @@ public class user {
     private String phone;
     private String latitude;
     private String longitude;
+    private Boolean showLocation;
     private String image;
+
     private ArrayList<String> friends;
 
-    public user(String id, String email, String name, String phone, String latitude, String longitude, String image) {
+    public UserInformation() {
+    }
+
+    public UserInformation(String id, String email, String name, String image) {
         this.id = id;
         this.email = email;
         this.name = name;
-        this.phone = phone;
-        this.latitude = latitude;
-        this.longitude = longitude;
         this.image = image;
+
     }
 
     public String getId() {
@@ -90,5 +93,13 @@ public class user {
 
     public void setFriends(ArrayList<String> friends) {
         this.friends = friends;
+    }
+
+    public Boolean getShowLocation() {
+        return showLocation;
+    }
+
+    public void setShowLocation(Boolean showLocation) {
+        this.showLocation = showLocation;
     }
 }

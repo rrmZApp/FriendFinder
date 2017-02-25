@@ -1,27 +1,35 @@
 {
   "project_info": {
-    "project_number": "1042961729539",
-    "firebase_url": "https://friend-finder-86c96.firebaseio.com",
-    "project_id": "friend-finder-86c96",
-    "storage_bucket": "friend-finder-86c96.appspot.com"
+    "project_number": "140044701928",
+    "firebase_url": "https://friend-finder-d8288.firebaseio.com",
+    "project_id": "friend-finder-d8288",
+    "storage_bucket": "friend-finder-d8288.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:1042961729539:android:e2eb7ed8934f6eb0",
+        "mobilesdk_app_id": "1:140044701928:android:e2eb7ed8934f6eb0",
         "android_client_info": {
           "package_name": "com.rrmsense.friendfinder"
         }
       },
       "oauth_client": [
         {
-          "client_id": "1042961729539-un3399orn5f15b263bdh7ujaippgh3h8.apps.googleusercontent.com",
+          "client_id": "140044701928-l0e1m7nohvintda9bodceg2rogaod77j.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.rrmsense.friendfinder",
+            "certificate_hash": "2a81004ce46a6e42bbac2a95a8a03b4a3f4f0526"
+          }
+        },
+        {
+          "client_id": "140044701928-uq82bv83h8h811dfta4fasipr1bo6jmi.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyAkl_fV8XllFyN-cDOzTUk-SNGOfNGly_I"
+          "current_key": "AIzaSyDKthnECxkfnAZv6noEyVROny_rF9DhEJo"
         }
       ],
       "services": {
@@ -29,8 +37,13 @@
           "status": 1
         },
         "appinvite_service": {
-          "status": 1,
-          "other_platform_oauth_client": []
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "140044701928-uq82bv83h8h811dfta4fasipr1bo6jmi.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         },
         "ads_service": {
           "status": 2
