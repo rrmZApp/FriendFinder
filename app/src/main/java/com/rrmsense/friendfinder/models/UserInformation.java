@@ -13,10 +13,9 @@ public class UserInformation {
     private String email;
     private String name;
     private String phone;
-    private String latitude;
-    private String longitude;
     private Boolean showLocation;
     private String image;
+    private LocationGPS locationGPS;
 
     private ArrayList<String> friends;
 
@@ -63,22 +62,6 @@ public class UserInformation {
         this.phone = phone;
     }
 
-    public String getLatitude() {
-        return latitude;
-    }
-
-    public void setLatitude(String latitude) {
-        this.latitude = latitude;
-    }
-
-    public String getLongitude() {
-        return longitude;
-    }
-
-    public void setLongitude(String longitude) {
-        this.longitude = longitude;
-    }
-
     public String getImage() {
         return image;
     }
@@ -101,5 +84,13 @@ public class UserInformation {
 
     public void setShowLocation(Boolean showLocation) {
         this.showLocation = showLocation;
+    }
+
+    public LocationGPS getLocationGPS() {
+        return locationGPS;
+    }
+
+    public void setLocationGPS(LocationGPS locationGPS) {
+        this.locationGPS = locationGPS;
     }
 }

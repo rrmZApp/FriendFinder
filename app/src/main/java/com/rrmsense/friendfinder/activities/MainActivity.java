@@ -4,6 +4,9 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -13,6 +16,8 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -26,7 +31,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.target.BitmapImageViewTarget;
 import com.firebase.ui.auth.AuthUI;
+import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -51,8 +58,9 @@ public class MainActivity extends AppCompatActivity
 
     FirebaseAuth auth;
     FirebaseUser user;
-    UserInformation userInformation;
+    public UserInformation userInformation;
     DatabaseReference databaseReference;
+    int CURRENT_FRAGMENT;
     //AIzaSyDKthnECxkfnAZv6noEyVROny_rF9DhEJo
 
     @Override
@@ -85,8 +93,16 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         View view = navigationView.getHeaderView(0);
-        ImageView userImage = (ImageView) view.findViewById(R.id.imageUser);
-        Glide.with(this).load(user.getPhotoUrl()).into(userImage);
+        final ImageView userImage = (ImageView) view.findViewById(R.id.imageUser);
+        Glide.with(this).load(user.getPhotoUrl()).asBitmap().centerCrop().into(new BitmapImageViewTarget(userImage) {
+            @Override
+            protected void setResource(Bitmap resource) {
+                RoundedBitmapDrawable circularBitmapDrawable =
+                        RoundedBitmapDrawableFactory.create(getBaseContext().getResources(), resource);
+                circularBitmapDrawable.setCircular(true);
+                userImage.setImageDrawable(circularBitmapDrawable);
+            }
+        });
         //Toast.makeText(this,UserInformation.getPhotoUrl().toString(),Toast.LENGTH_LONG).show();
         TextView userName = (TextView) view.findViewById(R.id.textName);
         userName.setText(user.getDisplayName()+"q");
@@ -95,15 +111,14 @@ public class MainActivity extends AppCompatActivity
         userEmail.setText(user.getEmail());
         navigationView.setNavigationItemSelectedListener(this);
 
-        try {
-            MapsInitializer.initialize(this);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+//        try {
+//            MapsInitializer.initialize(this);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
         openFragment(Fragments.FRAGMENT_VIEW_FRIENDS);
         getUserInformation();
     }
-
     private void getUserInformation() {
         FirebaseUser firebaseUser = auth.getCurrentUser();
         String photoURL = firebaseUser.getPhotoUrl()==null?"":firebaseUser.getPhotoUrl().toString();
@@ -114,7 +129,7 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 userInformation = dataSnapshot.getValue(UserInformation.class);
-                Toast.makeText(MainActivity.this,"Y",Toast.LENGTH_LONG).show();
+                //Toast.makeText(MainActivity.this,"Y",Toast.LENGTH_LONG).show();
             }
 
             @Override
@@ -130,7 +145,10 @@ public class MainActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
-        } else {
+        } else if(CURRENT_FRAGMENT != Fragments.FRAGMENT_VIEW_FRIENDS) {
+            openFragment(Fragments.FRAGMENT_VIEW_FRIENDS);
+
+        }else{
             super.onBackPressed();
         }
     }
@@ -192,21 +210,25 @@ public class MainActivity extends AppCompatActivity
         switch (fragmentID) {
             case Fragments.FRAGMENT_VIEW_FRIENDS:
                 fragment = new ViewFriendsFragment();
+                CURRENT_FRAGMENT = Fragments.FRAGMENT_VIEW_FRIENDS;
                 //bundle.putInt("ID", SelectFragment.FRAGMENT_BANGLA_RADIO);
                 break;
             case Fragments.FRAGMENT_EDIT_PROFILE:
                 //bundle.putInt("ID", SelectFragment.FRAGMENT_FAVOURITE);
                 fragment = new EditProfileFragment();
+                CURRENT_FRAGMENT = Fragments.FRAGMENT_EDIT_PROFILE;
                 break;
             case Fragments.FRAGMENT_SETTINGS:
                 // bundle.putInt("ID", SelectFragment.FRAGMENT_RECENT);
                 fragment = new SettingsFragment();
+                CURRENT_FRAGMENT = Fragments.FRAGMENT_SETTINGS;
                 break;
             case Fragments.FRAGMENT_ABOUT:
                 fragment = new AboutFragment();
                 break;
             case Fragments.FRAGMENT_ADD_FRIEND:
                 fragment = new AddFriendFragment();
+                CURRENT_FRAGMENT = Fragments.FRAGMENT_ABOUT;
                 break;
         }
         fragment.setArguments(bundle);
@@ -237,4 +259,6 @@ public class MainActivity extends AppCompatActivity
         }
         return true;
     }
+
+
 }

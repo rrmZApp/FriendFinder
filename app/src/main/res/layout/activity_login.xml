@@ -9,5 +9,11 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.rrmsense.friendfinder.activities.LoginActivity">
+<!--
+    <com.google.android.gms.common.SignInButton
+        android:id="@+id/login_with_google"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+        -->
 
 </RelativeLayout>
