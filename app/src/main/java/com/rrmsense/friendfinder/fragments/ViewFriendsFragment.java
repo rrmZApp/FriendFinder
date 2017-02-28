@@ -53,6 +53,8 @@ import com.rrmsense.friendfinder.models.UserInformation;
 import com.rrmsense.friendfinder.service.TrackGPS;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import static android.content.Context.LOCATION_SERVICE;
 import static com.facebook.FacebookSdk.getApplicationContext;
@@ -124,17 +126,9 @@ public class ViewFriendsFragment extends Fragment{
 
     private void updateLocationFirebase() {
         DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("users").child(userUid);
-        databaseReference.child("locationGPS").setValue(new LocationGPS(latitude,longitude) );
-        databaseReference.child("locationGPS").addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
+        Map<String,Object> locationGPS = new HashMap<>();
+        locationGPS.put("locationGPS",new LocationGPS(latitude,longitude));
+        databaseReference.updateChildren(locationGPS);
     }
 
     public void updateLocation(){
@@ -162,11 +156,16 @@ public class ViewFriendsFragment extends Fragment{
         databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+                userInformationArray.clear();
                 for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
 
                     UserInformation userInformation = postSnapshot.getValue(UserInformation.class);
 
-                    if(userInformation.getId()!= userUid && userInformation.getLocationGPS()!=null){
+                    if(userInformation.getId().equals(userUid))
+                        continue;
+                    //Toast.makeText(getActivity(),userInformation.getId()+" "+userUid,Toast.LENGTH_SHORT).show();
+                    if(userInformation.getLocationGPS()!=null){
+
                         userInformationArray.add(userInformation);
                         Marker marker = map.addMarker(new MarkerOptions()
                                 .position(new LatLng(userInformation.getLocationGPS().getLatitude(),userInformation.getLocationGPS().getLongitude()))

@@ -5,14 +5,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.location.Location;
-import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -28,13 +25,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.target.BitmapImageViewTarget;
 import com.firebase.ui.auth.AuthUI;
-import com.google.android.gms.location.LocationListener;
-import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -56,19 +51,30 @@ import com.rrmsense.friendfinder.models.UserInformation;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
+    public UserInformation userInformation;
     FirebaseAuth auth;
     FirebaseUser user;
-    public UserInformation userInformation;
     DatabaseReference databaseReference;
     int CURRENT_FRAGMENT;
     //AIzaSyDKthnECxkfnAZv6noEyVROny_rF9DhEJo
+
+    public static boolean hasPermissions(Context context, String... permissions) {
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && context != null && permissions != null) {
+            for (String permission : permissions) {
+                if (ActivityCompat.checkSelfPermission(context, permission) != PackageManager.PERMISSION_GRANTED) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
             getPermissions();
         auth = FirebaseAuth.getInstance();
         user = auth.getCurrentUser();
@@ -76,12 +82,14 @@ public class MainActivity extends AppCompatActivity
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle("");
 
+
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 //Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG).setAction("Action", null).show();
-                openFragment(Fragments.FRAGMENT_ADD_FRIEND);
+                if (CURRENT_FRAGMENT != Fragments.FRAGMENT_ADD_FRIEND)
+                    openFragment(Fragments.FRAGMENT_ADD_FRIEND);
             }
         });
 
@@ -91,10 +99,11 @@ public class MainActivity extends AppCompatActivity
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
+
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         View view = navigationView.getHeaderView(0);
         final ImageView userImage = (ImageView) view.findViewById(R.id.imageUser);
-        Glide.with(this).load(user.getPhotoUrl()).asBitmap().centerCrop().into(new BitmapImageViewTarget(userImage) {
+        Glide.with(this).load(user.getPhotoUrl()).asBitmap().centerCrop().diskCacheStrategy(DiskCacheStrategy.RESULT).into(new BitmapImageViewTarget(userImage) {
             @Override
             protected void setResource(Bitmap resource) {
                 RoundedBitmapDrawable circularBitmapDrawable =
@@ -105,8 +114,8 @@ public class MainActivity extends AppCompatActivity
         });
         //Toast.makeText(this,UserInformation.getPhotoUrl().toString(),Toast.LENGTH_LONG).show();
         TextView userName = (TextView) view.findViewById(R.id.textName);
-        userName.setText(user.getDisplayName()+"q");
-       //Toast.makeText(this,user.getDisplayName(),Toast.LENGTH_LONG).show();
+        userName.setText(user.getDisplayName());
+        //Toast.makeText(this,user.getDisplayName(),Toast.LENGTH_LONG).show();
         TextView userEmail = (TextView) view.findViewById(R.id.textEmail);
         userEmail.setText(user.getEmail());
         navigationView.setNavigationItemSelectedListener(this);
@@ -119,9 +128,10 @@ public class MainActivity extends AppCompatActivity
         openFragment(Fragments.FRAGMENT_VIEW_FRIENDS);
         getUserInformation();
     }
+
     private void getUserInformation() {
         FirebaseUser firebaseUser = auth.getCurrentUser();
-        String photoURL = firebaseUser.getPhotoUrl()==null?"":firebaseUser.getPhotoUrl().toString();
+        String photoURL = firebaseUser.getPhotoUrl() == null ? "" : firebaseUser.getPhotoUrl().toString();
 
         databaseReference = FirebaseDatabase.getInstance().getReference("users");
 
@@ -145,10 +155,10 @@ public class MainActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
-        } else if(CURRENT_FRAGMENT != Fragments.FRAGMENT_VIEW_FRIENDS) {
+        } else if (CURRENT_FRAGMENT != Fragments.FRAGMENT_VIEW_FRIENDS) {
             openFragment(Fragments.FRAGMENT_VIEW_FRIENDS);
 
-        }else{
+        } else {
             super.onBackPressed();
         }
     }
@@ -162,6 +172,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
@@ -169,7 +180,7 @@ public class MainActivity extends AppCompatActivity
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
-            openFragment(Fragments.FRAGMENT_SETTINGS);
+            //openFragment(Fragments.FRAGMENT_SETTINGS);
         }
 
         return super.onOptionsItemSelected(item);
@@ -182,9 +193,12 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_edit) {
-            openFragment(Fragments.FRAGMENT_EDIT_PROFILE);
-        }
-        else if(id==R.id.nav_sign_out){
+            if (CURRENT_FRAGMENT != Fragments.FRAGMENT_EDIT_PROFILE)
+                openFragment(Fragments.FRAGMENT_EDIT_PROFILE);
+        } else if (id == R.id.nav_home) {
+            if (CURRENT_FRAGMENT != Fragments.FRAGMENT_VIEW_FRIENDS)
+                openFragment(Fragments.FRAGMENT_VIEW_FRIENDS);
+        } else if (id == R.id.nav_sign_out) {
             AuthUI.getInstance()
                     .signOut(this)
                     .addOnCompleteListener(new OnCompleteListener<Void>() {
@@ -194,8 +208,9 @@ public class MainActivity extends AppCompatActivity
                         }
                     });
 
-        }else if (id == R.id.nav_about) {
-            openFragment(Fragments.FRAGMENT_ABOUT);
+        } else if (id == R.id.nav_about) {
+            if (CURRENT_FRAGMENT != Fragments.FRAGMENT_ABOUT)
+                openFragment(Fragments.FRAGMENT_ABOUT);
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -209,11 +224,13 @@ public class MainActivity extends AppCompatActivity
         Bundle bundle = new Bundle();
         switch (fragmentID) {
             case Fragments.FRAGMENT_VIEW_FRIENDS:
+
                 fragment = new ViewFriendsFragment();
                 CURRENT_FRAGMENT = Fragments.FRAGMENT_VIEW_FRIENDS;
                 //bundle.putInt("ID", SelectFragment.FRAGMENT_BANGLA_RADIO);
                 break;
             case Fragments.FRAGMENT_EDIT_PROFILE:
+
                 //bundle.putInt("ID", SelectFragment.FRAGMENT_FAVOURITE);
                 fragment = new EditProfileFragment();
                 CURRENT_FRAGMENT = Fragments.FRAGMENT_EDIT_PROFILE;
@@ -237,27 +254,13 @@ public class MainActivity extends AppCompatActivity
                 .commit();
     }
 
-    void getPermissions(){
+    void getPermissions() {
         int PERMISSION_ALL = 1;
-        String[] PERMISSIONS = {Manifest.permission.INTERNET,Manifest.permission.ACCESS_COARSE_LOCATION,Manifest.permission.ACCESS_COARSE_LOCATION,Manifest.permission.ACCESS_NETWORK_STATE};
+        String[] PERMISSIONS = {Manifest.permission.INTERNET, Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_NETWORK_STATE};
 
         if (!hasPermissions(this, PERMISSIONS)) {
             ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSION_ALL);
         }
-    }
-    public static boolean hasPermissions(Context context, String... permissions)
-    {
-        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && context != null && permissions != null)
-        {
-            for (String permission : permissions)
-            {
-                if (ActivityCompat.checkSelfPermission(context, permission) != PackageManager.PERMISSION_GRANTED)
-                {
-                    return false;
-                }
-            }
-        }
-        return true;
     }
 
 

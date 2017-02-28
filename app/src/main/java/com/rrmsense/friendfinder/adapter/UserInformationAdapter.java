@@ -14,6 +14,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.target.BitmapImageViewTarget;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -53,7 +54,7 @@ public class UserInformationAdapter extends RecyclerView.Adapter<UserInformation
         holder.text.setText(userInformation.getEmail());
 
         final ImageView image = holder.image;
-        Glide.with(context).load(userInformation.getImage()).asBitmap().centerCrop().into(new BitmapImageViewTarget(image) {
+        Glide.with(context).load(userInformation.getImage()).asBitmap().centerCrop().diskCacheStrategy(DiskCacheStrategy.RESULT).into(new BitmapImageViewTarget(image) {
             @Override
             protected void setResource(Bitmap resource) {
                 RoundedBitmapDrawable circularBitmapDrawable =

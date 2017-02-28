@@ -1,8 +1,6 @@
 package com.rrmsense.friendfinder.models;
 
 
-import java.util.ArrayList;
-
 /**
  * Created by Talha on 2/23/2017.
  */
@@ -12,12 +10,10 @@ public class UserInformation {
     private String id;
     private String email;
     private String name;
-    private String phone;
+    private String mobile;
     private Boolean showLocation;
     private String image;
     private LocationGPS locationGPS;
-
-    private ArrayList<String> friends;
 
     public UserInformation() {
     }
@@ -54,12 +50,12 @@ public class UserInformation {
         this.name = name;
     }
 
-    public String getPhone() {
-        return phone;
+    public String getMobile() {
+        return mobile;
     }
 
-    public void setPhone(String phone) {
-        this.phone = phone;
+    public void setMobile(String mobile) {
+        this.mobile = mobile;
     }
 
     public String getImage() {
@@ -68,14 +64,6 @@ public class UserInformation {
 
     public void setImage(String image) {
         this.image = image;
-    }
-
-    public ArrayList<String> getFriends() {
-        return friends;
-    }
-
-    public void setFriends(ArrayList<String> friends) {
-        this.friends = friends;
     }
 
     public Boolean getShowLocation() {

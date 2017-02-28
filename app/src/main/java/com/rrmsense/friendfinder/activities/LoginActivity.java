@@ -1,6 +1,7 @@
 package com.rrmsense.friendfinder.activities;
 
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -28,18 +29,24 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.rrmsense.friendfinder.R;
 import com.rrmsense.friendfinder.models.UserInformation;
+import com.rrmsense.friendfinder.service.NetworkStateReceiver;
 
 import java.util.Arrays;
 
-public class LoginActivity extends AppCompatActivity {
+public class LoginActivity extends AppCompatActivity implements NetworkStateReceiver.NetworkStateReceiverListener {
 
     private static final int RC_SIGN_IN = 123;
     FirebaseAuth auth;
+    private NetworkStateReceiver networkStateReceiver;
     //SignInButton buttonGoogle;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
+        networkStateReceiver = new NetworkStateReceiver();
+        networkStateReceiver.addListener(this);
+        this.registerReceiver(networkStateReceiver, new IntentFilter(android.net.ConnectivityManager.CONNECTIVITY_ACTION));
 
 //        buttonGoogle = (SignInButton) findViewById(R.id.login_with_google);
 //        buttonGoogle.setOnClickListener(new View.OnClickListener() {
@@ -50,20 +57,7 @@ public class LoginActivity extends AppCompatActivity {
 //            }
 //        });
 
-        auth = FirebaseAuth.getInstance();
-        if (auth.getCurrentUser() != null) {
-            updateFirebaseUserDatabase();
-        }else{
-            startActivityForResult(
-                    AuthUI.getInstance()
-                            .createSignInIntentBuilder()
-                            .setProviders(Arrays.asList(new AuthUI.IdpConfig.Builder(AuthUI.GOOGLE_PROVIDER).build()))
-                            .setTheme(R.style.FirebaseLoginTheme)
-                            .build(), RC_SIGN_IN);
-        }
     }
-
-
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
         super.onActivityResult(requestCode, resultCode, data);
@@ -98,22 +92,33 @@ public class LoginActivity extends AppCompatActivity {
 
     private void updateFirebaseUserDatabase() {
 
-        FirebaseUser firebaseUser = auth.getCurrentUser();
-        String photoURL = firebaseUser.getPhotoUrl()==null?"":firebaseUser.getPhotoUrl().toString();
-        UserInformation userInformation = new UserInformation(firebaseUser.getUid(),firebaseUser.getEmail(),firebaseUser.getDisplayName(),photoURL);
-        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("users");
-        databaseReference.child(firebaseUser.getUid()).setValue(userInformation);
+        final FirebaseUser firebaseUser = auth.getCurrentUser();
+        final DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("users");
+
         databaseReference.child(firebaseUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                UserInformation u = dataSnapshot.getValue(UserInformation.class);
-                if(u.getId()!=null)
+                if(dataSnapshot.getValue(UserInformation.class).getId()==null){
+                    String photoURL = firebaseUser.getPhotoUrl()==null?"":firebaseUser.getPhotoUrl().toString();
+                    UserInformation userInformation = new UserInformation(firebaseUser.getUid(),firebaseUser.getEmail(),firebaseUser.getDisplayName(),photoURL);
+                    databaseReference.child(firebaseUser.getUid()).setValue(userInformation);
+                    databaseReference.child(firebaseUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            startActivity(new Intent(LoginActivity.this, MainActivity.class).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK));
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+                        }
+                    });
+                }else{
                     startActivity(new Intent(LoginActivity.this, MainActivity.class).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK));
+                }
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-
             }
         });
         //Toast.makeText(this,auth.getCurrentUser().getUid()+auth.getCurrentUser().getPhotoUrl()+auth.getCurrentUser().getDisplayName(),Toast.LENGTH_LONG).show();
@@ -124,6 +129,29 @@ public class LoginActivity extends AppCompatActivity {
         super.onPause();
         overridePendingTransition(0, 0);
     }
+    @Override
+    public void networkAvailable() {
+        auth = FirebaseAuth.getInstance();
+        if (auth.getCurrentUser() != null) {
+            updateFirebaseUserDatabase();
+        }else{
+            startActivityForResult(
+                    AuthUI.getInstance()
+                            .createSignInIntentBuilder()
+                            .setProviders(Arrays.asList(new AuthUI.IdpConfig.Builder(AuthUI.GOOGLE_PROVIDER).build()))
+                            .setTheme(R.style.FirebaseLoginTheme)
+                            .build(), RC_SIGN_IN);
+        }
+    }
 
+    @Override
+    public void networkUnavailable() {
+        Toast.makeText(this,"No internet connection!",Toast.LENGTH_SHORT).show();
 
+    }
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        this.unregisterReceiver(networkStateReceiver);
+    }
 }
