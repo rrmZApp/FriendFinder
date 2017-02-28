@@ -46,7 +46,6 @@ public class EditProfileFragment extends Fragment implements View.OnClickListene
     UserInformation userInformation;
 
 
-
     public EditProfileFragment() {
         // Required empty public constructor
     }
@@ -64,7 +63,7 @@ public class EditProfileFragment extends Fragment implements View.OnClickListene
         gps = (Switch) view.findViewById(R.id.gps);
         gps.setOnClickListener(this);
 
-        return  view;
+        return view;
     }
 
     @Override
@@ -73,27 +72,27 @@ public class EditProfileFragment extends Fragment implements View.OnClickListene
 
         databaseReference = FirebaseDatabase.getInstance().getReference("users");
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-        if(firebaseUser.getPhotoUrl()!=null)
-        Glide.with(getActivity()).load(firebaseUser.getPhotoUrl()).asBitmap().centerCrop().diskCacheStrategy(DiskCacheStrategy.RESULT).into(new BitmapImageViewTarget(image) {
-            @Override
-            protected void setResource(Bitmap resource) {
-                RoundedBitmapDrawable circularBitmapDrawable =
-                        RoundedBitmapDrawableFactory.create(getActivity().getResources(), resource);
-                circularBitmapDrawable.setCircular(true);
-                image.setImageDrawable(circularBitmapDrawable);
-            }
-        });
-        if(firebaseUser.getDisplayName()!=null)
-        name.setText("Name: "+ firebaseUser.getDisplayName());
-        if(firebaseUser.getEmail()!=null)
-        email.setText("E-Mail: "+ firebaseUser.getEmail());
+        if (firebaseUser.getPhotoUrl() != null)
+            Glide.with(getActivity()).load(firebaseUser.getPhotoUrl()).asBitmap().centerCrop().diskCacheStrategy(DiskCacheStrategy.RESULT).into(new BitmapImageViewTarget(image) {
+                @Override
+                protected void setResource(Bitmap resource) {
+                    RoundedBitmapDrawable circularBitmapDrawable =
+                            RoundedBitmapDrawableFactory.create(getActivity().getResources(), resource);
+                    circularBitmapDrawable.setCircular(true);
+                    image.setImageDrawable(circularBitmapDrawable);
+                }
+            });
+        if (firebaseUser.getDisplayName() != null)
+            name.setText("Name: " + firebaseUser.getDisplayName());
+        if (firebaseUser.getEmail() != null)
+            email.setText("E-Mail: " + firebaseUser.getEmail());
         databaseReference.child(firebaseUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 userInformation = dataSnapshot.getValue(UserInformation.class);
-                if(userInformation.getMobile()!=null)
+                if (userInformation.getMobile() != null)
                     mobile.setText(userInformation.getMobile());
-                if(userInformation.getShowLocation()!=null)
+                if (userInformation.getShowLocation() != null)
                     gps.setChecked(userInformation.getShowLocation());
             }
 
@@ -107,9 +106,9 @@ public class EditProfileFragment extends Fragment implements View.OnClickListene
 
     @Override
     public void onClick(View v) {
-        switch (v.getId()){
+        switch (v.getId()) {
             case R.id.update:
-                if(mobile.getText()!=null)
+                if (mobile.getText() != null)
                     databaseReference.child(firebaseUser.getUid()).child("mobile").setValue(mobile.getText().toString());
                 break;
             case R.id.gps:

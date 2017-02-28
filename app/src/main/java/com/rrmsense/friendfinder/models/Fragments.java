@@ -10,4 +10,5 @@ public class Fragments {
     public static final int FRAGMENT_EDIT_PROFILE = 2;
     public static final int FRAGMENT_ABOUT = 3;
     public static final int FRAGMENT_ADD_FRIEND = 4;
+    public static final int FRAGMENT_NOTIFICATION = 5;
 }

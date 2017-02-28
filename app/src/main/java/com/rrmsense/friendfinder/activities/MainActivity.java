@@ -7,6 +7,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
@@ -25,6 +26,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
@@ -43,6 +45,7 @@ import com.rrmsense.friendfinder.R;
 import com.rrmsense.friendfinder.fragments.AboutFragment;
 import com.rrmsense.friendfinder.fragments.AddFriendFragment;
 import com.rrmsense.friendfinder.fragments.EditProfileFragment;
+import com.rrmsense.friendfinder.fragments.NotificationFragment;
 import com.rrmsense.friendfinder.fragments.SettingsFragment;
 import com.rrmsense.friendfinder.fragments.ViewFriendsFragment;
 import com.rrmsense.friendfinder.models.Fragments;
@@ -51,11 +54,13 @@ import com.rrmsense.friendfinder.models.UserInformation;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
+    boolean doubleBackToExitPressedOnce = false;
     public UserInformation userInformation;
     FirebaseAuth auth;
     FirebaseUser user;
     DatabaseReference databaseReference;
     int CURRENT_FRAGMENT;
+    FloatingActionButton fab;
     //AIzaSyDKthnECxkfnAZv6noEyVROny_rF9DhEJo
 
     public static boolean hasPermissions(Context context, String... permissions) {
@@ -79,11 +84,12 @@ public class MainActivity extends AppCompatActivity
         auth = FirebaseAuth.getInstance();
         user = auth.getCurrentUser();
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle("");
 
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -141,17 +147,20 @@ public class MainActivity extends AppCompatActivity
                 userInformation = dataSnapshot.getValue(UserInformation.class);
                 //Toast.makeText(MainActivity.this,"Y",Toast.LENGTH_LONG).show();
             }
-
             @Override
             public void onCancelled(DatabaseError databaseError) {
 
             }
         });
-
     }
 
     @Override
     public void onBackPressed() {
+        if (doubleBackToExitPressedOnce) {
+            super.onBackPressed();
+            return;
+        }
+
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
@@ -159,8 +168,17 @@ public class MainActivity extends AppCompatActivity
             openFragment(Fragments.FRAGMENT_VIEW_FRIENDS);
 
         } else {
-            super.onBackPressed();
+            this.doubleBackToExitPressedOnce = true;
+            Toast.makeText(this, "Please click BACK again to exit", Toast.LENGTH_SHORT).show();
+            new Handler().postDelayed(new Runnable() {
+
+                @Override
+                public void run() {
+                    doubleBackToExitPressedOnce=false;
+                }
+            }, 2000);
         }
+
     }
 
     @Override
@@ -172,15 +190,13 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            //openFragment(Fragments.FRAGMENT_SETTINGS);
+        switch (item.getItemId()){
+            case R.id.action_notification:
+                openFragment(Fragments.FRAGMENT_NOTIFICATION);
+                break;
+//            case R.id.action_settings:
+//                openFragment(Fragments.FRAGMENT_SETTINGS);
+//                break;
         }
 
         return super.onOptionsItemSelected(item);
@@ -189,30 +205,32 @@ public class MainActivity extends AppCompatActivity
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
-        // Handle navigation view item clicks here.
-        int id = item.getItemId();
 
-        if (id == R.id.nav_edit) {
-            if (CURRENT_FRAGMENT != Fragments.FRAGMENT_EDIT_PROFILE)
-                openFragment(Fragments.FRAGMENT_EDIT_PROFILE);
-        } else if (id == R.id.nav_home) {
-            if (CURRENT_FRAGMENT != Fragments.FRAGMENT_VIEW_FRIENDS)
-                openFragment(Fragments.FRAGMENT_VIEW_FRIENDS);
-        } else if (id == R.id.nav_sign_out) {
-            AuthUI.getInstance()
-                    .signOut(this)
-                    .addOnCompleteListener(new OnCompleteListener<Void>() {
-                        public void onComplete(@NonNull Task<Void> task) {
-                            startActivity(new Intent(MainActivity.this, LoginActivity.class));
-                            finish();
-                        }
-                    });
+        switch (item.getItemId()){
+            case R.id.nav_edit:
+                if (CURRENT_FRAGMENT != Fragments.FRAGMENT_EDIT_PROFILE)
+                    openFragment(Fragments.FRAGMENT_EDIT_PROFILE);
+                break;
+            case R.id.nav_home:
+                if (CURRENT_FRAGMENT != Fragments.FRAGMENT_VIEW_FRIENDS)
+                    openFragment(Fragments.FRAGMENT_VIEW_FRIENDS);
+                break;
+            case R.id.nav_sign_out:
+                AuthUI.getInstance()
+                        .signOut(this)
+                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                            public void onComplete(@NonNull Task<Void> task) {
+                                startActivity(new Intent(MainActivity.this, LoginActivity.class));
+                                finish();
+                            }
+                        });
+                break;
+            case R.id.nav_about:
+                if (CURRENT_FRAGMENT != Fragments.FRAGMENT_ABOUT)
+                    openFragment(Fragments.FRAGMENT_ABOUT);
+                break;
 
-        } else if (id == R.id.nav_about) {
-            if (CURRENT_FRAGMENT != Fragments.FRAGMENT_ABOUT)
-                openFragment(Fragments.FRAGMENT_ABOUT);
         }
-
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
@@ -224,28 +242,36 @@ public class MainActivity extends AppCompatActivity
         Bundle bundle = new Bundle();
         switch (fragmentID) {
             case Fragments.FRAGMENT_VIEW_FRIENDS:
-
+                fab.show();
                 fragment = new ViewFriendsFragment();
                 CURRENT_FRAGMENT = Fragments.FRAGMENT_VIEW_FRIENDS;
                 //bundle.putInt("ID", SelectFragment.FRAGMENT_BANGLA_RADIO);
                 break;
             case Fragments.FRAGMENT_EDIT_PROFILE:
-
+                fab.hide();
                 //bundle.putInt("ID", SelectFragment.FRAGMENT_FAVOURITE);
                 fragment = new EditProfileFragment();
                 CURRENT_FRAGMENT = Fragments.FRAGMENT_EDIT_PROFILE;
                 break;
             case Fragments.FRAGMENT_SETTINGS:
+                fab.hide();
                 // bundle.putInt("ID", SelectFragment.FRAGMENT_RECENT);
                 fragment = new SettingsFragment();
                 CURRENT_FRAGMENT = Fragments.FRAGMENT_SETTINGS;
                 break;
             case Fragments.FRAGMENT_ABOUT:
+                fab.hide();
                 fragment = new AboutFragment();
                 break;
             case Fragments.FRAGMENT_ADD_FRIEND:
+                fab.hide();
                 fragment = new AddFriendFragment();
                 CURRENT_FRAGMENT = Fragments.FRAGMENT_ABOUT;
+                break;
+            case Fragments.FRAGMENT_NOTIFICATION:
+                fab.hide();
+                CURRENT_FRAGMENT = Fragments.FRAGMENT_NOTIFICATION;
+                fragment = new NotificationFragment();
                 break;
         }
         fragment.setArguments(bundle);

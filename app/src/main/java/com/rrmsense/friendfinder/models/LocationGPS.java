@@ -1,7 +1,5 @@
 package com.rrmsense.friendfinder.models;
 
-import com.google.android.gms.maps.model.LatLng;
-
 /**
  * Created by Talha on 2/26/2017.
  */

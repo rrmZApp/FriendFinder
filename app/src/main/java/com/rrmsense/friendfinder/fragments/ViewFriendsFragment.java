@@ -2,33 +2,17 @@ package com.rrmsense.friendfinder.fragments;
 
 
 import android.Manifest;
-import android.content.Context;
-import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.location.Location;
-import android.location.LocationManager;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import com.firebase.ui.auth.ui.User;
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.location.LocationListener;
-import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -45,8 +29,6 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.rrmsense.friendfinder.R;
-import com.rrmsense.friendfinder.activities.LoginActivity;
-import com.rrmsense.friendfinder.activities.MainActivity;
 import com.rrmsense.friendfinder.adapter.UserInformationAdapter;
 import com.rrmsense.friendfinder.models.LocationGPS;
 import com.rrmsense.friendfinder.models.UserInformation;
@@ -56,22 +38,18 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import static android.content.Context.LOCATION_SERVICE;
-import static com.facebook.FacebookSdk.getApplicationContext;
-
 /**
  * A simple {@link Fragment} subclass.
  */
-public class ViewFriendsFragment extends Fragment{
+public class ViewFriendsFragment extends Fragment {
     MapView mapView;
     GoogleMap map;
-    private TrackGPS gps;
     double longitude;
     double latitude;
     boolean mapReady = false;
     String userUid;
     ArrayList<UserInformation> userInformationArray = new ArrayList<>();
-
+    private TrackGPS gps;
     private RecyclerView recyclerView;
     private RecyclerView.Adapter adapter;
     private RecyclerView.LayoutManager layoutManager;
@@ -105,7 +83,7 @@ public class ViewFriendsFragment extends Fragment{
                     @Override
                     public boolean onMarkerClick(Marker marker) {
                         String tag = marker.getTag().toString();
-                        Toast.makeText(getActivity(),userInformationArray.get(Integer.parseInt(tag)).getName(),Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getActivity(), userInformationArray.get(Integer.parseInt(tag)).getName(), Toast.LENGTH_SHORT).show();
 
                         return true;
                     }
@@ -126,26 +104,25 @@ public class ViewFriendsFragment extends Fragment{
 
     private void updateLocationFirebase() {
         DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("users").child(userUid);
-        Map<String,Object> locationGPS = new HashMap<>();
-        locationGPS.put("locationGPS",new LocationGPS(latitude,longitude));
+        Map<String, Object> locationGPS = new HashMap<>();
+        locationGPS.put("locationGPS", new LocationGPS(latitude, longitude));
         databaseReference.updateChildren(locationGPS);
     }
 
-    public void updateLocation(){
+    public void updateLocation() {
 
         gps = new TrackGPS(getActivity());
-        if(gps.canGetLocation()){
+        if (gps.canGetLocation()) {
             longitude = gps.getLongitude();
-            latitude = gps .getLatitude();
+            latitude = gps.getLatitude();
             //Toast.makeText(getApplicationContext(),"Longitude:"+Double.toString(longitude)+"\nLatitude:"+Double.toString(latitude),Toast.LENGTH_SHORT).show();
-            LatLng latLng = new LatLng(latitude,longitude);
+            LatLng latLng = new LatLng(latitude, longitude);
             CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 15);
             map.animateCamera(cameraUpdate);
             updateLocationFirebase();
             updateLocationFriends();
 
-        }
-        else {
+        } else {
             gps.showSettingsAlert();
         }
     }
@@ -161,21 +138,21 @@ public class ViewFriendsFragment extends Fragment{
 
                     UserInformation userInformation = postSnapshot.getValue(UserInformation.class);
 
-                    if(userInformation.getId().equals(userUid))
+                    if (userInformation.getId().equals(userUid))
                         continue;
                     //Toast.makeText(getActivity(),userInformation.getId()+" "+userUid,Toast.LENGTH_SHORT).show();
-                    if(userInformation.getLocationGPS()!=null){
+                    if (userInformation.getLocationGPS() != null) {
 
                         userInformationArray.add(userInformation);
                         Marker marker = map.addMarker(new MarkerOptions()
-                                .position(new LatLng(userInformation.getLocationGPS().getLatitude(),userInformation.getLocationGPS().getLongitude()))
+                                .position(new LatLng(userInformation.getLocationGPS().getLatitude(), userInformation.getLocationGPS().getLongitude()))
                                 .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
                                 .title(userInformation.getName())
                         );
-                        marker.setTag(userInformationArray.size()-1);
+                        marker.setTag(userInformationArray.size() - 1);
                     }
                 }
-                adapter = new UserInformationAdapter(userInformationArray,getActivity(),map);
+                adapter = new UserInformationAdapter(userInformationArray, getActivity(), map);
                 recyclerView.setAdapter(adapter);
             }
 
@@ -189,7 +166,7 @@ public class ViewFriendsFragment extends Fragment{
     @Override
     public void onResume() {
         super.onResume();
-        if(mapReady)
+        if (mapReady)
             updateLocation();
     }
 }

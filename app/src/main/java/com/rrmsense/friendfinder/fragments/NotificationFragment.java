@@ -6,19 +6,16 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Switch;
 
 import com.rrmsense.friendfinder.R;
 
 /**
  * A simple {@link Fragment} subclass.
  */
-public class SettingsFragment extends Fragment implements View.OnClickListener {
+public class NotificationFragment extends Fragment {
 
 
-    Switch switch_gps;
-
-    public SettingsFragment() {
+    public NotificationFragment() {
         // Required empty public constructor
     }
 
@@ -27,18 +24,7 @@ public class SettingsFragment extends Fragment implements View.OnClickListener {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_settings, container, false);
-
-        switch_gps = (Switch) view.findViewById(R.id.switch_gps);
-        switch_gps.setOnClickListener(this);
-        return view;
+        return inflater.inflate(R.layout.fragment_notification, container, false);
     }
 
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()) {
-
-
-        }
-    }
 }

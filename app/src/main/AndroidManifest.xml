@@ -28,7 +28,7 @@
             android:value="AIzaSyDKthnECxkfnAZv6noEyVROny_rF9DhEJo"/>
 
         <activity
-            android:theme="@style/Theme.AppCompat.DayNight.NoActionBar"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"
             android:name=".activities.SplashScreenActivity"
             android:screenOrientation="portrait"
             android:noHistory="true">
@@ -41,7 +41,7 @@
         <activity
             android:name=".activities.LoginActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/Theme.AppCompat.DayNight.NoActionBar"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"
             >
 
         </activity>
@@ -49,7 +49,7 @@
             android:name=".activities.MainActivity"
             android:label="@string/title_activity_main"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
     </application>
 
 </manifest>

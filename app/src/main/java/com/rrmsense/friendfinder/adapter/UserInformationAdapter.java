@@ -34,7 +34,7 @@ public class UserInformationAdapter extends RecyclerView.Adapter<UserInformation
     Context context;
     GoogleMap map;
 
-    public UserInformationAdapter(ArrayList<UserInformation> userInformationArray, Context context,GoogleMap map) {
+    public UserInformationAdapter(ArrayList<UserInformation> userInformationArray, Context context, GoogleMap map) {
         this.userInformationArray = userInformationArray;
         this.context = context;
         this.map = map;
@@ -50,9 +50,9 @@ public class UserInformationAdapter extends RecyclerView.Adapter<UserInformation
     public void onBindViewHolder(ViewHolder holder, int position) {
         UserInformation userInformation = userInformationArray.get(position);
 
-        holder.button.setText("Call");
-        holder.text.setText(userInformation.getEmail());
-
+        holder.call.setText("Call");
+        holder.email.setText(userInformation.getEmail());
+        holder.name.setText(userInformation.getName());
         final ImageView image = holder.image;
         Glide.with(context).load(userInformation.getImage()).asBitmap().centerCrop().diskCacheStrategy(DiskCacheStrategy.RESULT).into(new BitmapImageViewTarget(image) {
             @Override
@@ -75,32 +75,34 @@ public class UserInformationAdapter extends RecyclerView.Adapter<UserInformation
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         private ImageView image;
-        private TextView text;
-        private Button button;
+        private TextView name;
+        private TextView email;
+        private Button call;
 
         public ViewHolder(View itemView) {
             super(itemView);
             itemView.setOnClickListener(this);
 
             image = (ImageView) itemView.findViewById(R.id.image);
-            text = (TextView) itemView.findViewById(R.id.text);
-            button = (Button) itemView.findViewById(R.id.button);
+            email = (TextView) itemView.findViewById(R.id.email);
+            name = (TextView) itemView.findViewById(R.id.name);
+            call = (Button) itemView.findViewById(R.id.button);
 
-            button.setOnClickListener(this);
+            call.setOnClickListener(this);
 
         }
 
         @Override
         public void onClick(View v) {
-            switch (v.getId()){
+            switch (v.getId()) {
                 case R.id.button:
-                    Toast.makeText(context,"Button",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, "Button", Toast.LENGTH_SHORT).show();
 
 
                 default:
-                    Toast.makeText(context,"View",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, "View", Toast.LENGTH_SHORT).show();
 
-                    LatLng latLng = new LatLng(userInformationArray.get(getAdapterPosition()).getLocationGPS().getLatitude(),userInformationArray.get(getAdapterPosition()).getLocationGPS().getLongitude());
+                    LatLng latLng = new LatLng(userInformationArray.get(getAdapterPosition()).getLocationGPS().getLatitude(), userInformationArray.get(getAdapterPosition()).getLocationGPS().getLongitude());
                     CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 15);
                     map.animateCamera(cameraUpdate);
                     break;
