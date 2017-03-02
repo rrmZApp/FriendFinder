@@ -39,6 +39,7 @@ public class EditProfileFragment extends Fragment implements View.OnClickListene
     EditText mobile;
     Button update;
     Switch gps;
+    Button back;
 
     DatabaseReference databaseReference;
     FirebaseUser firebaseUser;
@@ -62,6 +63,8 @@ public class EditProfileFragment extends Fragment implements View.OnClickListene
         update.setOnClickListener(this);
         gps = (Switch) view.findViewById(R.id.gps);
         gps.setOnClickListener(this);
+        back = (Button) view.findViewById(R.id.back);
+        back.setOnClickListener(this);
 
         return view;
     }
@@ -113,6 +116,9 @@ public class EditProfileFragment extends Fragment implements View.OnClickListene
                 break;
             case R.id.gps:
                 databaseReference.child(firebaseUser.getUid()).child("showLocation").setValue(gps.isChecked());
+                break;
+            case R.id.back:
+                getActivity().onBackPressed();
                 break;
         }
 

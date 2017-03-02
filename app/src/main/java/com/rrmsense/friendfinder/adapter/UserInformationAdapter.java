@@ -1,7 +1,12 @@
 package com.rrmsense.friendfinder.adapter;
 
+import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.net.Uri;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.support.v7.widget.RecyclerView;
@@ -51,6 +56,7 @@ public class UserInformationAdapter extends RecyclerView.Adapter<UserInformation
         UserInformation userInformation = userInformationArray.get(position);
 
         holder.call.setText("Call");
+        holder.notify.setText("Notify");
         holder.email.setText(userInformation.getEmail());
         holder.name.setText(userInformation.getName());
         final ImageView image = holder.image;
@@ -78,6 +84,7 @@ public class UserInformationAdapter extends RecyclerView.Adapter<UserInformation
         private TextView name;
         private TextView email;
         private Button call;
+        private Button notify;
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -86,19 +93,27 @@ public class UserInformationAdapter extends RecyclerView.Adapter<UserInformation
             image = (ImageView) itemView.findViewById(R.id.image);
             email = (TextView) itemView.findViewById(R.id.email);
             name = (TextView) itemView.findViewById(R.id.name);
-            call = (Button) itemView.findViewById(R.id.button);
+            call = (Button) itemView.findViewById(R.id.call);
+            notify = (Button) itemView.findViewById(R.id.notify);
 
             call.setOnClickListener(this);
+            notify.setOnClickListener(this);
 
         }
 
         @Override
         public void onClick(View v) {
             switch (v.getId()) {
-                case R.id.button:
+                case R.id.call:
                     Toast.makeText(context, "Button", Toast.LENGTH_SHORT).show();
-
-
+                    Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + userInformationArray.get(getAdapterPosition()).getMobile()));
+                    if (ActivityCompat.checkSelfPermission(context, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+                        return;
+                    }
+                    context.startActivity(intent);
+                case R.id.notify:
+                    Toast.makeText(context, "Notify", Toast.LENGTH_SHORT).show();
+                    break;
                 default:
                     Toast.makeText(context, "View", Toast.LENGTH_SHORT).show();
 

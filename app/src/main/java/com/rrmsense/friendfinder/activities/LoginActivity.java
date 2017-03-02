@@ -92,7 +92,7 @@ public class LoginActivity extends AppCompatActivity implements NetworkStateRece
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.getValue(UserInformation.class).getId() == null) {
                     String photoURL = firebaseUser.getPhotoUrl() == null ? "" : firebaseUser.getPhotoUrl().toString();
-                    UserInformation userInformation = new UserInformation(firebaseUser.getUid(), firebaseUser.getEmail(), firebaseUser.getDisplayName(), photoURL);
+                    UserInformation userInformation = new UserInformation(firebaseUser.getUid(), firebaseUser.getEmail(), firebaseUser.getDisplayName(), photoURL,true);
                     databaseReference.child(firebaseUser.getUid()).setValue(userInformation);
                     databaseReference.child(firebaseUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override

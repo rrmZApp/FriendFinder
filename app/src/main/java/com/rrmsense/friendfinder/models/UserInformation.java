@@ -14,15 +14,17 @@ public class UserInformation {
     private Boolean showLocation;
     private String image;
     private LocationGPS locationGPS;
+    private String token;
 
     public UserInformation() {
     }
 
-    public UserInformation(String id, String email, String name, String image) {
+    public UserInformation(String id, String email, String name, String image,boolean showLocation) {
         this.id = id;
         this.email = email;
         this.name = name;
         this.image = image;
+        this.showLocation = showLocation;
 
     }
 
@@ -80,5 +82,13 @@ public class UserInformation {
 
     public void setLocationGPS(LocationGPS locationGPS) {
         this.locationGPS = locationGPS;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
     }
 }

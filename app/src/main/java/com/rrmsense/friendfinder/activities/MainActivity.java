@@ -131,7 +131,7 @@ public class MainActivity extends AppCompatActivity
 //        } catch (Exception e) {
 //            e.printStackTrace();
 //        }
-        openFragment(Fragments.FRAGMENT_VIEW_FRIENDS);
+        //openFragment(Fragments.FRAGMENT_VIEW_FRIENDS);
         getUserInformation();
     }
 
@@ -145,7 +145,13 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 userInformation = dataSnapshot.getValue(UserInformation.class);
+
                 //Toast.makeText(MainActivity.this,"Y",Toast.LENGTH_LONG).show();
+                if(userInformation.getMobile()==null){
+                    openFragment(Fragments.FRAGMENT_EDIT_PROFILE);
+                }else{
+                    openFragment(Fragments.FRAGMENT_VIEW_FRIENDS);
+                }
             }
             @Override
             public void onCancelled(DatabaseError databaseError) {
@@ -282,7 +288,7 @@ public class MainActivity extends AppCompatActivity
 
     void getPermissions() {
         int PERMISSION_ALL = 1;
-        String[] PERMISSIONS = {Manifest.permission.INTERNET, Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_NETWORK_STATE};
+        String[] PERMISSIONS = {Manifest.permission.INTERNET, Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_NETWORK_STATE,Manifest.permission.CALL_PHONE};
 
         if (!hasPermissions(this, PERMISSIONS)) {
             ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSION_ALL);
