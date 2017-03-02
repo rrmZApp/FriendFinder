@@ -1,6 +1,7 @@
 package com.rrmsense.friendfinder.activities;
 
 import android.Manifest;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -21,6 +22,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -54,14 +56,14 @@ import com.rrmsense.friendfinder.models.UserInformation;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-    boolean doubleBackToExitPressedOnce = false;
     public UserInformation userInformation;
+    boolean doubleBackToExitPressedOnce = false;
     FirebaseAuth auth;
     FirebaseUser user;
     DatabaseReference databaseReference;
     int CURRENT_FRAGMENT;
     FloatingActionButton fab;
-    //AIzaSyDKthnECxkfnAZv6noEyVROny_rF9DhEJo
+    ProgressDialog progressDialog;
 
     public static boolean hasPermissions(Context context, String... permissions) {
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && context != null && permissions != null) {
@@ -75,9 +77,16 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        showProgressDialog();
+
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
             getPermissions();
@@ -135,29 +144,45 @@ public class MainActivity extends AppCompatActivity
         getUserInformation();
     }
 
+    private void showProgressDialog() {
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage("loading");
+        progressDialog.setCancelable(false);
+        progressDialog.show();
+    }
+    private void hideProgressDialog() {
+        progressDialog.cancel();
+    }
+
+
     private void getUserInformation() {
-        FirebaseUser firebaseUser = auth.getCurrentUser();
-        String photoURL = firebaseUser.getPhotoUrl() == null ? "" : firebaseUser.getPhotoUrl().toString();
 
-        databaseReference = FirebaseDatabase.getInstance().getReference("users");
+        if (getIntent().hasExtra("Fragment")) {
+            int value = getIntent().getExtras().getInt("Fragment");
+            Log.d("ACTIVITY","Main");
+            openFragment(value);
 
-        databaseReference.child(firebaseUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                userInformation = dataSnapshot.getValue(UserInformation.class);
-
-                //Toast.makeText(MainActivity.this,"Y",Toast.LENGTH_LONG).show();
-                if(userInformation.getMobile()==null){
-                    openFragment(Fragments.FRAGMENT_EDIT_PROFILE);
-                }else{
-                    openFragment(Fragments.FRAGMENT_VIEW_FRIENDS);
+        } else {
+            FirebaseUser firebaseUser = auth.getCurrentUser();
+            databaseReference = FirebaseDatabase.getInstance().getReference("users");
+            databaseReference.child(firebaseUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    userInformation = dataSnapshot.getValue(UserInformation.class);
+                    if (userInformation.getMobile() == null) {
+                        openFragment(Fragments.FRAGMENT_EDIT_PROFILE);
+                    } else {
+                        openFragment(Fragments.FRAGMENT_VIEW_FRIENDS);
+                    }
+                    hideProgressDialog();
                 }
-            }
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
 
-            }
-        });
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            });
+        }
     }
 
     @Override
@@ -180,7 +205,7 @@ public class MainActivity extends AppCompatActivity
 
                 @Override
                 public void run() {
-                    doubleBackToExitPressedOnce=false;
+                    doubleBackToExitPressedOnce = false;
                 }
             }, 2000);
         }
@@ -196,7 +221,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()){
+        switch (item.getItemId()) {
             case R.id.action_notification:
                 openFragment(Fragments.FRAGMENT_NOTIFICATION);
                 break;
@@ -212,7 +237,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
 
-        switch (item.getItemId()){
+        switch (item.getItemId()) {
             case R.id.nav_edit:
                 if (CURRENT_FRAGMENT != Fragments.FRAGMENT_EDIT_PROFILE)
                     openFragment(Fragments.FRAGMENT_EDIT_PROFILE);
@@ -286,9 +311,14 @@ public class MainActivity extends AppCompatActivity
                 .commit();
     }
 
+    @Override
+    protected void onPostResume() {
+        super.onPostResume();
+    }
+
     void getPermissions() {
         int PERMISSION_ALL = 1;
-        String[] PERMISSIONS = {Manifest.permission.INTERNET, Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_NETWORK_STATE,Manifest.permission.CALL_PHONE};
+        String[] PERMISSIONS = {Manifest.permission.INTERNET, Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_NETWORK_STATE, Manifest.permission.CALL_PHONE};
 
         if (!hasPermissions(this, PERMISSIONS)) {
             ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSION_ALL);

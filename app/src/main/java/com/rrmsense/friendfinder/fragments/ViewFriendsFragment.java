@@ -83,8 +83,8 @@ public class ViewFriendsFragment extends Fragment {
                     @Override
                     public boolean onMarkerClick(Marker marker) {
                         String tag = marker.getTag().toString();
-                        Toast.makeText(getActivity(), userInformationArray.get(Integer.parseInt(tag)).getName(), Toast.LENGTH_SHORT).show();
-
+                        //Toast.makeText(getActivity(), userInformationArray.get(Integer.parseInt(tag)).getName(), Toast.LENGTH_SHORT).show();
+                        marker.showInfoWindow();
                         return true;
                     }
                 });
@@ -146,10 +146,12 @@ public class ViewFriendsFragment extends Fragment {
                         userInformationArray.add(userInformation);
                         Marker marker = map.addMarker(new MarkerOptions()
                                 .position(new LatLng(userInformation.getLocationGPS().getLatitude(), userInformation.getLocationGPS().getLongitude()))
-                                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
                                 .title(userInformation.getName())
+                                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
+
                         );
                         marker.setTag(userInformationArray.size() - 1);
+
                     }
                 }
                 adapter = new UserInformationAdapter(userInformationArray, getActivity(), map);

@@ -39,12 +39,12 @@ import cz.msebera.android.httpclient.Header;
  * Created by Talha on 2/26/2017.
  */
 
-public class UserInformationAdapter extends RecyclerView.Adapter<UserInformationAdapter.ViewHolder> {
+public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapter.ViewHolder> {
     private ArrayList<UserInformation> userInformationArray;
     private Context context;
     private GoogleMap map;
 
-    public UserInformationAdapter(ArrayList<UserInformation> userInformationArray, Context context, GoogleMap map) {
+    public NotificationAdapter(ArrayList<UserInformation> userInformationArray, Context context, GoogleMap map) {
         this.userInformationArray = userInformationArray;
         this.context = context;
         this.map = map;

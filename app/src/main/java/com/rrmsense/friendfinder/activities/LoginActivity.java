@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.firebase.ui.auth.AuthUI;
@@ -17,11 +18,13 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.iid.FirebaseInstanceId;
 import com.rrmsense.friendfinder.R;
 import com.rrmsense.friendfinder.models.UserInformation;
 import com.rrmsense.friendfinder.service.NetworkStateReceiver;
 
 import java.util.Arrays;
+import java.util.HashMap;
 
 public class LoginActivity extends AppCompatActivity implements NetworkStateReceiver.NetworkStateReceiverListener {
 
@@ -65,17 +68,12 @@ public class LoginActivity extends AppCompatActivity implements NetworkStateRece
                 // Sign in failed
                 if (response == null) {
                     // UserInformation pressed back button
-
                     return;
                 }
-
                 if (response.getErrorCode() == ErrorCodes.NO_NETWORK) {
-
                     return;
                 }
-
                 if (response.getErrorCode() == ErrorCodes.UNKNOWN_ERROR) {
-
                     return;
                 }
             }
@@ -97,7 +95,14 @@ public class LoginActivity extends AppCompatActivity implements NetworkStateRece
                     databaseReference.child(firebaseUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
-                            startActivity(new Intent(LoginActivity.this, MainActivity.class).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK));
+
+                            Intent intent = new Intent(LoginActivity.this, MainActivity.class)
+                                    .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                            if (getIntent().hasExtra("Fragment")) {
+                                int value = getIntent().getExtras().getInt("Fragment");
+                                intent.putExtra("Fragment",value);
+                            }
+                            startActivity(intent);
                         }
 
                         @Override
@@ -105,7 +110,17 @@ public class LoginActivity extends AppCompatActivity implements NetworkStateRece
                         }
                     });
                 } else {
-                    startActivity(new Intent(LoginActivity.this, MainActivity.class).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK));
+                    HashMap<String, Object> FCMtoken = new HashMap<String, Object>();
+                    FCMtoken.put("token",FirebaseInstanceId.getInstance().getToken());
+                    databaseReference.child(firebaseUser.getUid()).updateChildren(FCMtoken);
+                    Intent intent = new Intent(LoginActivity.this, MainActivity.class)
+                            .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    if (getIntent().hasExtra("Fragment")) {
+                        int value = getIntent().getExtras().getInt("Fragment");
+                        intent.putExtra("Fragment",value);
+                        Log.d("ACTIVITY","Login");
+                    }
+                    startActivity(intent);
                 }
             }
 
@@ -124,6 +139,7 @@ public class LoginActivity extends AppCompatActivity implements NetworkStateRece
 
     @Override
     public void networkAvailable() {
+
         auth = FirebaseAuth.getInstance();
         if (auth.getCurrentUser() != null) {
             updateFirebaseUserDatabase();
@@ -147,5 +163,10 @@ public class LoginActivity extends AppCompatActivity implements NetworkStateRece
     protected void onDestroy() {
         super.onDestroy();
         this.unregisterReceiver(networkStateReceiver);
+    }
+
+    @Override
+    protected void onPostResume() {
+        super.onPostResume();
     }
 }

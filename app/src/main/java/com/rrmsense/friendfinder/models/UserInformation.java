@@ -25,7 +25,6 @@ public class UserInformation {
         this.name = name;
         this.image = image;
         this.showLocation = showLocation;
-
     }
 
     public String getId() {

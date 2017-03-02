@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
@@ -38,6 +39,13 @@ public class SplashScreenActivity extends AppCompatActivity implements NetworkSt
 
     @Override
     public void networkAvailable() {
+        final Intent i = new Intent(SplashScreenActivity.this, LoginActivity.class);
+        if (getIntent().hasExtra("Fragment")) {
+            int value = getIntent().getExtras().getInt("Fragment");
+            i.putExtra("Fragment",value);
+            SPLASH_TIME_OUT = 0;
+        }
+
         new Handler().postDelayed(new Runnable() {
 
             @Override
@@ -45,7 +53,7 @@ public class SplashScreenActivity extends AppCompatActivity implements NetworkSt
                 // This method will be executed once the timer is over
                 // Start your app main activity
                 progressDialog.cancel();
-                Intent i = new Intent(SplashScreenActivity.this, LoginActivity.class);
+
                 startActivity(i);
 
                 finish();
@@ -57,7 +65,7 @@ public class SplashScreenActivity extends AppCompatActivity implements NetworkSt
     @Override
     public void networkUnavailable() {
 
-        Toast.makeText(this,"No internet connection!",Toast.LENGTH_SHORT).show();
+        //Toast.makeText(this,"No internet connection!",Toast.LENGTH_SHORT).show();
         Snackbar snackbar = Snackbar.make(relativeLayout, "No internet connection!", Snackbar.LENGTH_LONG);
         snackbar.show();
 
@@ -67,5 +75,10 @@ public class SplashScreenActivity extends AppCompatActivity implements NetworkSt
     protected void onDestroy() {
         super.onDestroy();
         this.unregisterReceiver(networkStateReceiver);
+    }
+
+    @Override
+    protected void onPostResume() {
+        super.onPostResume();
     }
 }
