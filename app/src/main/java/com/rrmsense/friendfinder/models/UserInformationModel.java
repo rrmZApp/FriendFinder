@@ -5,7 +5,7 @@ package com.rrmsense.friendfinder.models;
  * Created by Talha on 2/23/2017.
  */
 
-public class UserInformation {
+public class UserInformationModel {
 
     private String id;
     private String email;
@@ -16,10 +16,10 @@ public class UserInformation {
     private LocationGPS locationGPS;
     private String token;
 
-    public UserInformation() {
+    public UserInformationModel() {
     }
 
-    public UserInformation(String id, String email, String name, String image,boolean showLocation) {
+    public UserInformationModel(String id, String email, String name, String image, boolean showLocation) {
         this.id = id;
         this.email = email;
         this.name = name;

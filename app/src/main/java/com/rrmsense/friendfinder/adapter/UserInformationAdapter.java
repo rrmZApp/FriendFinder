@@ -25,13 +25,17 @@ import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.FirebaseDatabase;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.RequestParams;
 import com.loopj.android.http.TextHttpResponseHandler;
 import com.rrmsense.friendfinder.R;
-import com.rrmsense.friendfinder.models.UserInformation;
+import com.rrmsense.friendfinder.models.NotificationModel;
+import com.rrmsense.friendfinder.models.UserInformationModel;
 
 import java.util.ArrayList;
+import java.util.Date;
 
 import cz.msebera.android.httpclient.Header;
 
@@ -40,12 +44,12 @@ import cz.msebera.android.httpclient.Header;
  */
 
 public class UserInformationAdapter extends RecyclerView.Adapter<UserInformationAdapter.ViewHolder> {
-    private ArrayList<UserInformation> userInformationArray;
+    private ArrayList<UserInformationModel> userInformationModelArray;
     private Context context;
     private GoogleMap map;
 
-    public UserInformationAdapter(ArrayList<UserInformation> userInformationArray, Context context, GoogleMap map) {
-        this.userInformationArray = userInformationArray;
+    public UserInformationAdapter(ArrayList<UserInformationModel> userInformationModelArray, Context context, GoogleMap map) {
+        this.userInformationModelArray = userInformationModelArray;
         this.context = context;
         this.map = map;
     }
@@ -58,14 +62,14 @@ public class UserInformationAdapter extends RecyclerView.Adapter<UserInformation
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        UserInformation userInformation = userInformationArray.get(position);
+        UserInformationModel userInformationModel = userInformationModelArray.get(position);
 
         holder.call.setText("Call");
         holder.notify.setText("Notify");
-        holder.email.setText(userInformation.getEmail());
-        holder.name.setText(userInformation.getName());
+        holder.email.setText(userInformationModel.getEmail());
+        holder.name.setText(userInformationModel.getName());
         final ImageView image = holder.image;
-        Glide.with(context).load(userInformation.getImage()).asBitmap().centerCrop().diskCacheStrategy(DiskCacheStrategy.RESULT).into(new BitmapImageViewTarget(image) {
+        Glide.with(context).load(userInformationModel.getImage()).asBitmap().centerCrop().diskCacheStrategy(DiskCacheStrategy.RESULT).into(new BitmapImageViewTarget(image) {
             @Override
             protected void setResource(Bitmap resource) {
                 RoundedBitmapDrawable circularBitmapDrawable =
@@ -80,7 +84,7 @@ public class UserInformationAdapter extends RecyclerView.Adapter<UserInformation
 
     @Override
     public int getItemCount() {
-        return userInformationArray.size();
+        return userInformationModelArray.size();
     }
 
     private void sendNotification(String title, String message, String token) {
@@ -136,19 +140,23 @@ public class UserInformationAdapter extends RecyclerView.Adapter<UserInformation
             switch (v.getId()) {
                 case R.id.call:
                     //Toast.makeText(context, "Button", Toast.LENGTH_SHORT).show();
-                    Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + userInformationArray.get(getAdapterPosition()).getMobile()));
+                    Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + userInformationModelArray.get(getAdapterPosition()).getMobile()));
                     if (ActivityCompat.checkSelfPermission(context, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
                         return;
                     }
                     context.startActivity(intent);
                 case R.id.notify:
                     //Toast.makeText(context, "Notify", Toast.LENGTH_SHORT).show();
-                    sendNotification("title","body",userInformationArray.get(getAdapterPosition()).getToken());
+                    String title = "title";
+                    String body = "body";
+                    sendNotification(title,body, userInformationModelArray.get(getAdapterPosition()).getToken());
+                    NotificationModel notificationModel = new NotificationModel(FirebaseAuth.getInstance().getCurrentUser().getUid(),userInformationModelArray.get(getAdapterPosition()).getId(),title,body,(new Date()).toString(),"notify");
+                    FirebaseDatabase.getInstance().getReference("notification").child(userInformationModelArray.get(getAdapterPosition()).getId()).push().setValue(notificationModel);
                     break;
                 default:
                     //Toast.makeText(context, "View", Toast.LENGTH_SHORT).show();
 
-                    LatLng latLng = new LatLng(userInformationArray.get(getAdapterPosition()).getLocationGPS().getLatitude(), userInformationArray.get(getAdapterPosition()).getLocationGPS().getLongitude());
+                    LatLng latLng = new LatLng(userInformationModelArray.get(getAdapterPosition()).getLocationGPS().getLatitude(), userInformationModelArray.get(getAdapterPosition()).getLocationGPS().getLongitude());
                     CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 15);
                     map.animateCamera(cameraUpdate);
                     break;

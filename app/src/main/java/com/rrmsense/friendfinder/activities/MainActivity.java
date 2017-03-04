@@ -51,12 +51,12 @@ import com.rrmsense.friendfinder.fragments.NotificationFragment;
 import com.rrmsense.friendfinder.fragments.SettingsFragment;
 import com.rrmsense.friendfinder.fragments.ViewFriendsFragment;
 import com.rrmsense.friendfinder.models.Fragments;
-import com.rrmsense.friendfinder.models.UserInformation;
+import com.rrmsense.friendfinder.models.UserInformationModel;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-    public UserInformation userInformation;
+    public UserInformationModel userInformationModel;
     boolean doubleBackToExitPressedOnce = false;
     FirebaseAuth auth;
     FirebaseUser user;
@@ -127,7 +127,7 @@ public class MainActivity extends AppCompatActivity
                 userImage.setImageDrawable(circularBitmapDrawable);
             }
         });
-        //Toast.makeText(this,UserInformation.getPhotoUrl().toString(),Toast.LENGTH_LONG).show();
+        //Toast.makeText(this,UserInformationModel.getPhotoUrl().toString(),Toast.LENGTH_LONG).show();
         TextView userName = (TextView) view.findViewById(R.id.textName);
         userName.setText(user.getDisplayName());
         //Toast.makeText(this,user.getDisplayName(),Toast.LENGTH_LONG).show();
@@ -168,8 +168,8 @@ public class MainActivity extends AppCompatActivity
             databaseReference.child(firebaseUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
-                    userInformation = dataSnapshot.getValue(UserInformation.class);
-                    if (userInformation.getMobile() == null) {
+                    userInformationModel = dataSnapshot.getValue(UserInformationModel.class);
+                    if (userInformationModel.getMobile() == null) {
                         openFragment(Fragments.FRAGMENT_EDIT_PROFILE);
                     } else {
                         openFragment(Fragments.FRAGMENT_VIEW_FRIENDS);

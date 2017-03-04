@@ -11,7 +11,6 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -31,7 +30,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.rrmsense.friendfinder.R;
 import com.rrmsense.friendfinder.adapter.UserInformationAdapter;
 import com.rrmsense.friendfinder.models.LocationGPS;
-import com.rrmsense.friendfinder.models.UserInformation;
+import com.rrmsense.friendfinder.models.UserInformationModel;
 import com.rrmsense.friendfinder.service.TrackGPS;
 
 import java.util.ArrayList;
@@ -48,7 +47,7 @@ public class ViewFriendsFragment extends Fragment {
     double latitude;
     boolean mapReady = false;
     String userUid;
-    ArrayList<UserInformation> userInformationArray = new ArrayList<>();
+    ArrayList<UserInformationModel> userInformationModelArray = new ArrayList<>();
     private TrackGPS gps;
     private RecyclerView recyclerView;
     private RecyclerView.Adapter adapter;
@@ -83,7 +82,7 @@ public class ViewFriendsFragment extends Fragment {
                     @Override
                     public boolean onMarkerClick(Marker marker) {
                         String tag = marker.getTag().toString();
-                        //Toast.makeText(getActivity(), userInformationArray.get(Integer.parseInt(tag)).getName(), Toast.LENGTH_SHORT).show();
+                        //Toast.makeText(getActivity(), userInformationModelArray.get(Integer.parseInt(tag)).getName(), Toast.LENGTH_SHORT).show();
                         marker.showInfoWindow();
                         return true;
                     }
@@ -133,28 +132,28 @@ public class ViewFriendsFragment extends Fragment {
         databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                userInformationArray.clear();
+                userInformationModelArray.clear();
                 for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
 
-                    UserInformation userInformation = postSnapshot.getValue(UserInformation.class);
+                    UserInformationModel userInformationModel = postSnapshot.getValue(UserInformationModel.class);
 
-                    if (userInformation.getId().equals(userUid))
+                    if (userInformationModel.getId().equals(userUid))
                         continue;
-                    //Toast.makeText(getActivity(),userInformation.getId()+" "+userUid,Toast.LENGTH_SHORT).show();
-                    if (userInformation.getLocationGPS() != null) {
+                    //Toast.makeText(getActivity(),userInformationModel.getId()+" "+userUid,Toast.LENGTH_SHORT).show();
+                    if (userInformationModel.getLocationGPS() != null) {
 
-                        userInformationArray.add(userInformation);
+                        userInformationModelArray.add(userInformationModel);
                         Marker marker = map.addMarker(new MarkerOptions()
-                                .position(new LatLng(userInformation.getLocationGPS().getLatitude(), userInformation.getLocationGPS().getLongitude()))
-                                .title(userInformation.getName())
+                                .position(new LatLng(userInformationModel.getLocationGPS().getLatitude(), userInformationModel.getLocationGPS().getLongitude()))
+                                .title(userInformationModel.getName())
                                 .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
 
                         );
-                        marker.setTag(userInformationArray.size() - 1);
+                        marker.setTag(userInformationModelArray.size() - 1);
 
                     }
                 }
-                adapter = new UserInformationAdapter(userInformationArray, getActivity(), map);
+                adapter = new UserInformationAdapter(userInformationModelArray, getActivity(), map);
                 recyclerView.setAdapter(adapter);
             }
 

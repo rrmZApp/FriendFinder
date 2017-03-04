@@ -20,7 +20,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.rrmsense.friendfinder.R;
-import com.rrmsense.friendfinder.models.UserInformation;
+import com.rrmsense.friendfinder.models.UserInformationModel;
 import com.rrmsense.friendfinder.service.NetworkStateReceiver;
 
 import java.util.Arrays;
@@ -67,7 +67,7 @@ public class LoginActivity extends AppCompatActivity implements NetworkStateRece
             } else {
                 // Sign in failed
                 if (response == null) {
-                    // UserInformation pressed back button
+                    // UserInformationModel pressed back button
                     return;
                 }
                 if (response.getErrorCode() == ErrorCodes.NO_NETWORK) {
@@ -88,10 +88,10 @@ public class LoginActivity extends AppCompatActivity implements NetworkStateRece
         databaseReference.child(firebaseUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.getValue(UserInformation.class).getId() == null) {
+                if (dataSnapshot.getValue(UserInformationModel.class).getId() == null) {
                     String photoURL = firebaseUser.getPhotoUrl() == null ? "" : firebaseUser.getPhotoUrl().toString();
-                    UserInformation userInformation = new UserInformation(firebaseUser.getUid(), firebaseUser.getEmail(), firebaseUser.getDisplayName(), photoURL,true);
-                    databaseReference.child(firebaseUser.getUid()).setValue(userInformation);
+                    UserInformationModel userInformationModel = new UserInformationModel(firebaseUser.getUid(), firebaseUser.getEmail(), firebaseUser.getDisplayName(), photoURL,true);
+                    databaseReference.child(firebaseUser.getUid()).setValue(userInformationModel);
                     databaseReference.child(firebaseUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {

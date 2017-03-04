@@ -2,7 +2,6 @@ package com.rrmsense.friendfinder.fragments;
 
 
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,7 +20,7 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.rrmsense.friendfinder.R;
 import com.rrmsense.friendfinder.models.OnListInformation;
-import com.rrmsense.friendfinder.models.UserInformation;
+import com.rrmsense.friendfinder.models.UserInformationModel;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -64,9 +63,9 @@ public class AddFriendFragment extends Fragment implements View.OnClickListener 
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if(dataSnapshot.hasChildren()){
-                    UserInformation userInformation = dataSnapshot.getChildren().iterator().next().getValue(UserInformation.class);
-                    Toast.makeText(getActivity(),userInformation.getId(),Toast.LENGTH_SHORT).show();
-                    sendAddNotification(userInformation);
+                    UserInformationModel userInformationModel = dataSnapshot.getChildren().iterator().next().getValue(UserInformationModel.class);
+                    Toast.makeText(getActivity(), userInformationModel.getId(),Toast.LENGTH_SHORT).show();
+                    sendAddNotification(userInformationModel);
                 }
                 else{
                     Toast.makeText(getActivity(),"User Not Found!",Toast.LENGTH_SHORT).show();
@@ -81,9 +80,9 @@ public class AddFriendFragment extends Fragment implements View.OnClickListener 
         });
     }
 
-    private void sendAddNotification(final UserInformation userInformation) {
+    private void sendAddNotification(final UserInformationModel userInformationModel) {
         final DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("friendList").child(FirebaseAuth.getInstance().getCurrentUser().getUid());
-        Query queryRef = databaseReference.orderByChild("email").equalTo(userInformation.getEmail());
+        Query queryRef = databaseReference.orderByChild("email").equalTo(userInformationModel.getEmail());
         queryRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -93,8 +92,8 @@ public class AddFriendFragment extends Fragment implements View.OnClickListener 
 
                 }
                 else{
-                    OnListInformation onListInformation = new OnListInformation(userInformation.getEmail(), false);
-                    databaseReference.child(userInformation.getId()).setValue(onListInformation);
+                    OnListInformation onListInformation = new OnListInformation(userInformationModel.getEmail(), false);
+                    databaseReference.child(userInformationModel.getId()).setValue(onListInformation);
                     databaseReference.addChildEventListener(new ChildEventListener() {
                         @Override
                         public void onChildAdded(DataSnapshot dataSnapshot, String s) {

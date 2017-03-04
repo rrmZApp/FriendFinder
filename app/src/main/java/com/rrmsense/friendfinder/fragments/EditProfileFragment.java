@@ -27,7 +27,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.rrmsense.friendfinder.R;
-import com.rrmsense.friendfinder.models.UserInformation;
+import com.rrmsense.friendfinder.models.UserInformationModel;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -44,7 +44,7 @@ public class EditProfileFragment extends Fragment implements View.OnClickListene
     DatabaseReference databaseReference;
     FirebaseUser firebaseUser;
 
-    UserInformation userInformation;
+    UserInformationModel userInformationModel;
 
 
     public EditProfileFragment() {
@@ -92,11 +92,11 @@ public class EditProfileFragment extends Fragment implements View.OnClickListene
         databaseReference.child(firebaseUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                userInformation = dataSnapshot.getValue(UserInformation.class);
-                if (userInformation.getMobile() != null)
-                    mobile.setText(userInformation.getMobile());
-                if (userInformation.getShowLocation() != null)
-                    gps.setChecked(userInformation.getShowLocation());
+                userInformationModel = dataSnapshot.getValue(UserInformationModel.class);
+                if (userInformationModel.getMobile() != null)
+                    mobile.setText(userInformationModel.getMobile());
+                if (userInformationModel.getShowLocation() != null)
+                    gps.setChecked(userInformationModel.getShowLocation());
             }
 
             @Override

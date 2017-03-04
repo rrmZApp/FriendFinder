@@ -29,7 +29,8 @@ import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.RequestParams;
 import com.loopj.android.http.TextHttpResponseHandler;
 import com.rrmsense.friendfinder.R;
-import com.rrmsense.friendfinder.models.UserInformation;
+import com.rrmsense.friendfinder.models.NotificationModel;
+import com.rrmsense.friendfinder.models.UserInformationModel;
 
 import java.util.ArrayList;
 
@@ -40,32 +41,33 @@ import cz.msebera.android.httpclient.Header;
  */
 
 public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapter.ViewHolder> {
-    private ArrayList<UserInformation> userInformationArray;
+    private ArrayList<NotificationModel> notificationModelArrayList;
     private Context context;
-    private GoogleMap map;
 
-    public NotificationAdapter(ArrayList<UserInformation> userInformationArray, Context context, GoogleMap map) {
-        this.userInformationArray = userInformationArray;
+
+    public NotificationAdapter(ArrayList<NotificationModel> notificationModelArrayList, Context context) {
+        this.notificationModelArrayList = notificationModelArrayList;
         this.context = context;
-        this.map = map;
+
     }
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.cardview_user_information, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.cardview_notification, parent, false);
         return new ViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        UserInformation userInformation = userInformationArray.get(position);
+        NotificationModel notificationModel = notificationModelArrayList.get(position);
 
         holder.call.setText("Call");
         holder.notify.setText("Notify");
-        holder.email.setText(userInformation.getEmail());
-        holder.name.setText(userInformation.getName());
-        final ImageView image = holder.image;
-        Glide.with(context).load(userInformation.getImage()).asBitmap().centerCrop().diskCacheStrategy(DiskCacheStrategy.RESULT).into(new BitmapImageViewTarget(image) {
+        holder.from.setText(notificationModel.getFrom());
+        holder.title.setText(notificationModel.getTitle());
+        holder.body.setText(notificationModel.getBody());
+        /*final ImageView image = holder.image;
+        Glide.with(context).load(notificationModel.ge).asBitmap().centerCrop().diskCacheStrategy(DiskCacheStrategy.RESULT).into(new BitmapImageViewTarget(image) {
             @Override
             protected void setResource(Bitmap resource) {
                 RoundedBitmapDrawable circularBitmapDrawable =
@@ -73,46 +75,23 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
                 circularBitmapDrawable.setCircular(true);
                 image.setImageDrawable(circularBitmapDrawable);
             }
-        });
+        });*/
 
 
     }
 
     @Override
     public int getItemCount() {
-        return userInformationArray.size();
+        return notificationModelArrayList.size();
     }
 
-    private void sendNotification(String title, String message, String token) {
-        String key = "AAAAIJtQkOg:APA91bEOre-XL80Jo7ATj2eJX0NjubhaVgtDOFZGhyYWYCfMA6CWDgDEYbbmRS9INd-xXvRxbt-Z4GwnSrv2AJdKAo4t781iRd02Fka_2RcOokC0f-rAlGk0rc1gn-SQRykeWIlx_qsQ";
-        RequestParams params = new RequestParams();
-        params.put("title", title);
-        params.put("body", message);
-        params.put("to", token);
-        params.put("key", key);
-        AsyncHttpClient client = new AsyncHttpClient();
-        client.post("http://appserver.rrmelectronics.com/firebase/notification.php", params, new TextHttpResponseHandler() {
-                    @Override
-                    public void onSuccess(int statusCode, Header[] headers, String res) {
-                        // called when response HTTP status is "200 OK"
-                        Toast.makeText(context, "Notication", Toast.LENGTH_SHORT).show();
-
-                    }
-
-                    @Override
-                    public void onFailure(int statusCode, Header[] headers, String res, Throwable t) {
-                        // called when response HTTP status is "4XX" (eg. 401, 403, 404)
-                    }
-                }
-        );
-
-    }
 
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         private ImageView image;
-        private TextView name;
-        private TextView email;
+        private TextView from;
+        private TextView title;
+        private TextView body;
         private Button call;
         private Button notify;
 
@@ -121,8 +100,9 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
             itemView.setOnClickListener(this);
 
             image = (ImageView) itemView.findViewById(R.id.image);
-            email = (TextView) itemView.findViewById(R.id.email);
-            name = (TextView) itemView.findViewById(R.id.name);
+            from = (TextView) itemView.findViewById(R.id.from);
+            title = (TextView) itemView.findViewById(R.id.title);
+            body = (TextView) itemView.findViewById(R.id.body);
             call = (Button) itemView.findViewById(R.id.call);
             notify = (Button) itemView.findViewById(R.id.notify);
 
@@ -135,22 +115,12 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
         public void onClick(View v) {
             switch (v.getId()) {
                 case R.id.call:
-                    //Toast.makeText(context, "Button", Toast.LENGTH_SHORT).show();
-                    Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + userInformationArray.get(getAdapterPosition()).getMobile()));
-                    if (ActivityCompat.checkSelfPermission(context, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
-                        return;
-                    }
-                    context.startActivity(intent);
+                   break;
                 case R.id.notify:
-                    //Toast.makeText(context, "Notify", Toast.LENGTH_SHORT).show();
-                    sendNotification("title","body",userInformationArray.get(getAdapterPosition()).getToken());
+
                     break;
                 default:
-                    //Toast.makeText(context, "View", Toast.LENGTH_SHORT).show();
 
-                    LatLng latLng = new LatLng(userInformationArray.get(getAdapterPosition()).getLocationGPS().getLatitude(), userInformationArray.get(getAdapterPosition()).getLocationGPS().getLongitude());
-                    CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 15);
-                    map.animateCamera(cameraUpdate);
                     break;
 
             }
