@@ -64,7 +64,7 @@ public class UserInformationAdapter extends RecyclerView.Adapter<UserInformation
     public void onBindViewHolder(ViewHolder holder, int position) {
         UserInformationModel userInformationModel = userInformationModelArray.get(position);
 
-        holder.call.setText("Call");
+
         holder.notify.setText("Notify");
         holder.email.setText(userInformationModel.getEmail());
         holder.name.setText(userInformationModel.getName());

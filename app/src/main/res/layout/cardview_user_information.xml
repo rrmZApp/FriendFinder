@@ -40,9 +40,13 @@
 
         <Button
             android:id="@+id/call"
-            android:layout_alignParentEnd="true"
+            android:drawableTint="@color/red"
+            style="@android:style/Widget.DeviceDefault.Button.Borderless"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:drawableLeft="@drawable/ic_phone_black_24dp"
+            android:text="Call" />
         <Button
             android:id="@+id/notify"
             android:layout_alignParentEnd="true"

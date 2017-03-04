@@ -40,7 +40,7 @@ import java.util.Map;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class ViewFriendsFragment extends Fragment {
+public class ViewFragment extends Fragment {
     MapView mapView;
     GoogleMap map;
     double longitude;
@@ -53,14 +53,14 @@ public class ViewFriendsFragment extends Fragment {
     private RecyclerView.Adapter adapter;
     private RecyclerView.LayoutManager layoutManager;
 
-    public ViewFriendsFragment() {
+    public ViewFragment() {
 
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_view_friends, container, false);
+        View view = inflater.inflate(R.layout.fragment_view, container, false);
 
 
         userUid = FirebaseAuth.getInstance().getCurrentUser().getUid();

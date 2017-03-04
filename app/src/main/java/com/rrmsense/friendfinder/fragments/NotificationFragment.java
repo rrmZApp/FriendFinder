@@ -8,6 +8,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -16,6 +17,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.rrmsense.friendfinder.R;
+import com.rrmsense.friendfinder.activities.MainActivity;
 import com.rrmsense.friendfinder.adapter.NotificationAdapter;
 import com.rrmsense.friendfinder.adapter.UserInformationAdapter;
 import com.rrmsense.friendfinder.models.NotificationModel;
@@ -33,6 +35,7 @@ public class NotificationFragment extends Fragment {
     private RecyclerView recyclerView;
     private RecyclerView.Adapter adapter;
     private RecyclerView.LayoutManager layoutManager;
+    private ProgressBar progressBar;
 
     public NotificationFragment() {
         // Required empty public constructor
@@ -42,7 +45,8 @@ public class NotificationFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view =  inflater.inflate(R.layout.fragment_notification, container, false);
-
+        progressBar = (ProgressBar) view.findViewById(R.id.progressBar);
+        progressBar.setVisibility(ProgressBar.VISIBLE);
         recyclerView = (RecyclerView) view.findViewById(R.id.recyclerView);
         layoutManager = new LinearLayoutManager(getActivity());
         recyclerView.setLayoutManager(layoutManager);
@@ -59,6 +63,7 @@ public class NotificationFragment extends Fragment {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 notificationModelArrayList.clear();
+                progressBar.setVisibility(ProgressBar.INVISIBLE);
                 for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
 
                     NotificationModel notificationModel = postSnapshot.getValue(NotificationModel.class);
@@ -67,6 +72,7 @@ public class NotificationFragment extends Fragment {
                 }
                 adapter = new NotificationAdapter(notificationModelArrayList, getActivity());
                 recyclerView.setAdapter(adapter);
+
 
             }
 

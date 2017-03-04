@@ -1,5 +1,6 @@
 package com.rrmsense.friendfinder.activities;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
@@ -31,7 +32,7 @@ public class LoginActivity extends AppCompatActivity implements NetworkStateRece
     private static final int RC_SIGN_IN = 123;
     FirebaseAuth auth;
     private NetworkStateReceiver networkStateReceiver;
-
+    ProgressDialog progressDialog;
     //SignInButton buttonGoogle;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,7 +42,9 @@ public class LoginActivity extends AppCompatActivity implements NetworkStateRece
         networkStateReceiver = new NetworkStateReceiver();
         networkStateReceiver.addListener(this);
         this.registerReceiver(networkStateReceiver, new IntentFilter(android.net.ConnectivityManager.CONNECTIVITY_ACTION));
-
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage("loading");
+        progressDialog.setCancelable(false);
 //        buttonGoogle = (SignInButton) findViewById(R.id.login_with_google);
 //        buttonGoogle.setOnClickListener(new View.OnClickListener() {
 //            @Override
@@ -81,6 +84,7 @@ public class LoginActivity extends AppCompatActivity implements NetworkStateRece
     }
 
     private void updateFirebaseUserDatabase() {
+        progressDialog.show();
 
         final FirebaseUser firebaseUser = auth.getCurrentUser();
         final DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("users");
@@ -97,11 +101,12 @@ public class LoginActivity extends AppCompatActivity implements NetworkStateRece
                         public void onDataChange(DataSnapshot dataSnapshot) {
 
                             Intent intent = new Intent(LoginActivity.this, MainActivity.class)
-                                    .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                    .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_CLEAR_TOP);
                             if (getIntent().hasExtra("Fragment")) {
                                 int value = getIntent().getExtras().getInt("Fragment");
                                 intent.putExtra("Fragment",value);
                             }
+                            progressDialog.cancel();
                             startActivity(intent);
                         }
 
@@ -114,12 +119,13 @@ public class LoginActivity extends AppCompatActivity implements NetworkStateRece
                     FCMtoken.put("token",FirebaseInstanceId.getInstance().getToken());
                     databaseReference.child(firebaseUser.getUid()).updateChildren(FCMtoken);
                     Intent intent = new Intent(LoginActivity.this, MainActivity.class)
-                            .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                            .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_CLEAR_TOP);
                     if (getIntent().hasExtra("Fragment")) {
                         int value = getIntent().getExtras().getInt("Fragment");
                         intent.putExtra("Fragment",value);
                         Log.d("ACTIVITY","Login");
                     }
+                    progressDialog.cancel();
                     startActivity(intent);
                 }
             }

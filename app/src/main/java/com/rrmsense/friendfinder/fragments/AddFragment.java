@@ -25,12 +25,12 @@ import com.rrmsense.friendfinder.models.UserInformationModel;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class AddFriendFragment extends Fragment implements View.OnClickListener {
+public class AddFragment extends Fragment implements View.OnClickListener {
 
     EditText id;
     Button add;
 
-    public AddFriendFragment() {
+    public AddFragment() {
         // Required empty public constructor
     }
 
@@ -39,7 +39,7 @@ public class AddFriendFragment extends Fragment implements View.OnClickListener 
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_add_friend, container, false);
+        View view = inflater.inflate(R.layout.fragment_add, container, false);
                 id = (EditText) view.findViewById(R.id.id);
         add = (Button) view.findViewById(R.id.add);
         add.setText("Add");
